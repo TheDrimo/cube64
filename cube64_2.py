@@ -32,13 +32,21 @@ class cube64:
 	def get_noeuds(self):
 		return self.noeuds
 
+	def get_noeud_for_cubatome(self, cubatome):
+		for i in range(0, len(self.noeuds)):
+			if sum(self.adn[:i]) > cubatome:
+				return i
+		return i
+
 	def set_noeuds(self, combinaisons):
 		if len(combinaisons) < len(self.adn)+2:
 			self.noeuds = combinaisons + [1]*(len(self.adn)+2-len(combinaisons))
 		else:
 			self.noeuds = combinaisons[:len(self.adn)+2]
-		print(len(self.noeuds), len(self.adn)+2)
 		self.coordonnees = self.chemin()
+
+	def get_len_adn(self):
+		return len(self.adn)
 
 	def affichage(self):
 		xmax, ymax, zmax = np.max(self.coordonnees, axis=0)
@@ -82,3 +90,4 @@ class cube64:
 if __name__ == "__main__":
 	cube_chaine = [3,1,2,1,1,3,1,2,1,2,1,2,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,2,3,1,1,1,3,1,2,1,1,1,1,1,1,1,1,1,3,1]
 	cube = cube64(cube_chaine)
+	cube.affichage()
