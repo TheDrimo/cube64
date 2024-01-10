@@ -63,12 +63,12 @@ cube = cube64(cube_chaine)
 combinaison = [random.randint(0, 3) for i in range(0, cube.get_len_adn())]
 combinaison_default = [0 for i in range(0, cube.get_len_adn())]
 
-for i in range(0, 100000):
+for i in range(0, 100):
 	noeud, res = test_combinaison(cube, combinaison_default)
 	if res != "reussi":
-		combinaison_default = incrementer_liste(combinaison_default, noeud)
+		combinaison_default = incrementer_liste(combinaison_default, noeud+1)
 	else:
-		print(combinaison_default)
+		print(combinaison_default, res)
 print(combinaison_default)
 
 
