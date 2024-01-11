@@ -1,25 +1,38 @@
 import numpy as np
 
-def fixation(univers, position, orientation):
-    # Calculer la position de départ pour la fixation
-    position_debut = [p - 4 * o for p, o in zip(position, orientation)]
+def dfs(matrice, x, y, z, visite):
+    # Vérifier si la position est dans la matrice et si le point n'a pas été visité et est un zéro
+    if (0 <= x < len(matrice) and 0 <= y < len(matrice[0]) and 0 <= z < len(matrice[0][0])
+            and not visite[x][y][z] and matrice[x][y][z] == 0):
+        visite[x][y][z] = True  # Marquer comme visité
 
-    # Vérifier et fixer les valeurs dans l'univers
-    # Vérifier si la position de départ est dans les limites de l'univers
-    if all(0 <= coord < 9 for coord in position_debut):
-        # Fixer la valeur à 2 dans la couche correspondante
-        if orientation[0] == 1:  # Axe des x
-            univers[position_debut[0], :, :] = 2
-        elif orientation[1] == 1:  # Axe des y
-            univers[:, position_debut[1], :] = 2
-        elif orientation[2] == 1:  # Axe des z
-            univers[:, :, position_debut[2]] = 2
+        # Appeler récursivement dfs sur tous les voisins adjacents
+        dfs(matrice, x + 1, y, z, visite)
+        dfs(matrice, x - 1, y, z, visite)
+        dfs(matrice, x, y + 1, z, visite)
+        dfs(matrice, x, y - 1, z, visite)
+        dfs(matrice, x, y, z + 1, visite)
+        dfs(matrice, x, y, z - 1, visite)
+
+def compter_poches(matrice):
+    visite = [[[False for _ in range(len(matrice[0][0]))] for _ in range(len(matrice[0]))] for _ in range(len(matrice))]
+    nombre_poches = 0
+
+    for x in range(len(matrice)):
+        for y in range(len(matrice[0])):
+            for z in range(len(matrice[0][0])):
+                if matrice[x][y][z] == 0 and not visite[x][y][z]:
+                    dfs(matrice, x, y, z, visite)
+                    nombre_poches += 1  # Une nouvelle poche trouvée
+
+    return nombre_poches
 
 # Exemple d'utilisation
-univers = np.zeros((9, 9, 9))
-position = [5, 4, 4]
-orientation = [1, 0, 0]
-univers[tuple(position)] = 1
+matrice_3d = [[[0, 1, 0, 0], [0, 0, 1, 1], [1, 0, 0, 1], [0, 1, 1, 0]],
+              [[0, 0, 0, 1], [1, 0, 1, 0], [0, 1, 0, 1], [1, 0, 1, 0]],
+              [[0, 1, 0, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 0, 1, 0]],
+              [[1, 0, 1, 0], [0, 1, 0, 1], [1, 0, 1, 0], [0, 1, 0, 0]]]
 
-fixation(univers, position, orientation)
-print(univers)  # Afficher la couche x = 1 de l'univers
+nombre_poches = compter_poches(matrice_3d)
+print(nombre_poches)
+

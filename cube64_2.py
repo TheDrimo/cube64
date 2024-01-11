@@ -38,6 +38,15 @@ class cube64:
 				return i
 		return i
 
+	def set_noeud_for_cubatome(self, cubatome):
+		noeud = self.get_noeud_for_cubatome(cubatome)
+		if self.noeuds[noeud] == 3:
+			self.noeuds[noeud] = 0
+		else :
+			self.noeuds[noeud] +=1
+		self.coordonnees = self.chemin()
+
+
 	def set_noeuds(self, combinaisons):
 		if len(combinaisons) < len(self.adn)+2:
 			self.noeuds = combinaisons + [1]*(len(self.adn)+2-len(combinaisons))
