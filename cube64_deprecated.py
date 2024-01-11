@@ -64,6 +64,7 @@ class cube64:
 				break
 			if self.instructions[changement] == deplacement:
 				directions_possible = self.filtrer_directions(orientation)
+				print(orientation, directions_possible)
 				orientation = directions_possible[self.instructions_tourner[changement]]
 				self.suite_orientation.append(orientation)
 				deplacement = 0
@@ -158,7 +159,7 @@ class cube64:
 
 	def solver(self):
 		num_max, resultat = cube.chemin3d()
-		for i in range(0, 1000):
+		for i in range(0, 10):
 			self.instructions_tourner = self.incrementer_liste(self.instructions_tourner[:num_max]) + self.instructions_tourner[num_max:]
 			num_max, resultat = cube.chemin3d()
 		#print(self.cube3d)

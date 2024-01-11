@@ -10,6 +10,7 @@ les combinaisons de noeuds après
 
 from cube64_2 import *
 import random
+import math
 
 def univers_init(dim=7):
 	matrice_3d = np.zeros((dim, dim, dim), dtype=int)
@@ -57,18 +58,42 @@ def incrementer_liste(listetotal, index=-1):
 			i -= 1
 	return liste + listetotal[index:]
 
+def fourgits_to_base10(fourgits):
+    return sum(val * (4 ** i) for i, val in enumerate(reversed(fourgits)))
+
+def puissance_de_10_proche(nombre):
+    # Calculer la puissance de 10 la plus proche en utilisant le logarithme en base 10
+    if nombre == 0:
+    	return 0
+    if nombre < 0:
+    	nombre = -nombre
+    puissance = round(math.log10(nombre))
+    return 10 ** puissance
+
 
 cube_chaine = [3,1,2,1,1,3,1,2,1,2,1,2,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,2,3,1,1,1,3,1,2,1,1,1,1,1,1,1,1,1,3,1]
 cube = cube64(cube_chaine)
 combinaison = [random.randint(0, 3) for i in range(0, cube.get_len_adn())]
 combinaison_default = [0 for i in range(0, cube.get_len_adn())]
+comb_max = [3 for i in range(0, cube.get_len_adn())]
 
-for i in range(0, 100):
+print("combinaison n°", puissance_de_10_proche(fourgits_to_base10(combinaison_default)))
+print("combinaison max", puissance_de_10_proche(fourgits_to_base10(comb_max)))
+
+n = 10000000
+
+num = fourgits_to_base10(combinaison_default)
+
+for i in range(0, n):
 	noeud, res = test_combinaison(cube, combinaison_default)
 	if res != "reussi":
 		combinaison_default = incrementer_liste(combinaison_default, noeud+1)
 	else:
 		print(combinaison_default, res)
+	if i % int(100) == 0:
+		print(i, "on a avancé de ", puissance_de_10_proche(fourgits_to_base10(combinaison_default) - num))
+		num = puissance_de_10_proche(fourgits_to_base10(combinaison_default))
+		print(combinaison_default, noeud)
 print(combinaison_default)
 
 

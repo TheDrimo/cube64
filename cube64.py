@@ -26,17 +26,17 @@ class cube64:
 
 	def __init__(self, adn):
 		self.adn = adn
-		self.schema = self.schema2D(adn) #string pour visualiser la forme de la chainette disposé à plat et en escalier
+		self.schema = self.schema2D() #string pour visualiser la forme de la chainette disposé à plat et en escalier
 		self.combinaison = [0]*len(adn)
 		self.univers = self.univers_init()
 
-	def schema2D(self, instructions):
+	def schema2D(self):
 	    # Calcul du chemin parcouru
 	    position = [0, 0]
 	    orientation = 0  # 0 pour l'axe des x, 1 pour l'axe des y
 	    chemin_parcouru = []
 
-	    for i in instructions:
+	    for i in self.adn:
 	        for _ in range(i):
 	            position[orientation] += 1
 	            chemin_parcouru.append(position.copy())
