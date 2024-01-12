@@ -11,6 +11,8 @@ les combinaisons de noeuds après
 from cube64_2 import *
 import random
 import math
+import sqlite3
+import json
 
 def univers_init(dim=7):
 	matrice_3d = np.zeros((dim, dim, dim), dtype=int)
@@ -44,8 +46,8 @@ def test_combinaison(cube, combinaison):
 			result = "volume dépassant le 4x4x4"
 			break
 		elif compter_poches_cube(univers) > 1:
-			result = "trop de poches"
-			print(result,compter_poches_cube(univers), cube.get_noeud_for_cubatome(num))
+			result = "trop de poches {}".format(compter_poches_cube(univers))
+			#print(result,compter_poches_cube(univers), cube.get_noeud_for_cubatome(num))
 			break
 		univers[tuple(position)] += 1
 	return cube.get_noeud_for_cubatome(num), result
@@ -119,31 +121,74 @@ def compter_poches(matrice):
 
     return nombre_poches
 
+def inserer_donnees_batch(donnees):
+    donnees_a_inserer = [(d['combinaison_num'], json.dumps(d['combinaison']), d['noeud'], d['resultat']) for d in donnees]
+    cursor.executemany('INSERT INTO ma_table (combinaison_num, combinaison, noeud, resultat) VALUES (?, ?, ?, ?)', donnees_a_inserer)
+
+
+# Connexion et création de la table
+conn = sqlite3.connect('ma_base_de_donnees.db')
+cursor = conn.cursor()
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS ma_table (
+        id INTEGER PRIMARY KEY,
+        combinaison_num TEXT,
+        combinaison TEXT,
+        noeud INTEGER,
+        resultat TEXT
+    )
+''')
+
 
 cube_chaine = [3,1,2,1,1,3,1,2,1,2,1,2,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,2,3,1,1,1,3,1,2,1,1,1,1,1,1,1,1,1,3,1]
 cube = cube64(cube_chaine)
 combinaison = [random.randint(0, 3) for i in range(0, cube.get_len_adn())]
 #combinaison_default = [0 for i in range(0, cube.get_len_adn())]
 combinaison_default = combinaison
+#combinaison_default = [3,3] + [0 for i in range(0, cube.get_len_adn()-2)]
 comb_max = [3 for i in range(0, cube.get_len_adn())]
 
-print("combinaison n°", puissance_de_10_proche(fourgits_to_base10(combinaison_default)))
+print("combinaison n°", fourgits_to_base10(combinaison_default), combinaison_default)
 print("combinaison max", len(str(puissance_de_10_proche(fourgits_to_base10(comb_max)))))
 
-n = 10000
+n = 1000
+
+noeud_moyen = 0
+noeud_max = 0
+
+noeud_moyen_section = 0
+noeud_max_section = 0
 
 num = fourgits_to_base10(combinaison_default)
 
 for i in range(0, n):
 	noeud, res = test_combinaison(cube, combinaison_default)
+	donnees = [{"combinaison_num": str(fourgits_to_base10(combinaison_default)), "combinaison": combinaison_default, "noeud": noeud, "resultat": res}]
+	inserer_donnees_batch(donnees)
+	noeud_moyen += noeud
+	noeud_moyen_section += noeud
+	if (i+1)%100 == 0:
+		combinaison_default = [random.randint(0, 3) for i in range(0, cube.get_len_adn())]
+		print(i, combinaison_default, noeud_moyen_section/100, noeud_max_section)
+		noeud_moyen_section = 0
+		noeud_max_section = 0
 	if res != "reussi":
 		combinaison_default = incrementer_liste(combinaison_default, noeud+1)
 	else:
 		print(combinaison_default, res)
-	if i % int(10) == 0:
-		print(i, noeud)
-		num = puissance_de_10_proche(fourgits_to_base10(combinaison_default))
-		#print(combinaison_default, noeud)
-print(combinaison_default, num)
+	"""if i % int(10) == 0:
+					print(i, noeud)
+					num = puissance_de_10_proche(fourgits_to_base10(combinaison_default))
+					#print(combinaison_default, noeud)"""
+	if noeud > noeud_max:
+		noeud_max = noeud
+	if noeud > noeud_max_section:
+		noeud_max_section = noeud
+noeud_moyen = noeud_moyen/n
 
-
+#print(combinaison_default, fourgits_to_base10(combinaison_default))
+print("noeud moyen :", noeud_moyen)
+print("noeud max :", noeud_max)
+# Valider et fermer
+conn.commit()
+conn.close()
