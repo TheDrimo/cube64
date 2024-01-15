@@ -46,7 +46,6 @@ class cube64:
 			self.noeuds[noeud] +=1
 		self.coordonnees = self.chemin()
 
-
 	def set_noeuds(self, combinaisons):
 		if len(combinaisons) < len(self.adn)+2:
 			self.noeuds = combinaisons + [1]*(len(self.adn)+2-len(combinaisons))
@@ -56,6 +55,24 @@ class cube64:
 
 	def get_len_adn(self):
 		return len(self.adn)
+
+	def get_instruction(self):
+		last_direction = 0
+		dico_direction = {"[1 0 0]":"aller à droite", "[-1  0  0]":"aller à gauche",
+						  "[0 1 0]":"avancer", "[ 0 -1  0]":"reculer",
+						  "[0 0 1]":"monter", "[ 0  0 -1]":"descendre",}
+		nb_dir = 0
+		for i, coord in enumerate(self.coordonnees):
+			if i < len(self.coordonnees)-1:
+				direction = np.array(self.coordonnees[i+1]) - np.array(coord)
+				direction = str(direction)
+				#print(coord)
+				if direction != last_direction:
+					if nb_dir%5  == 0:
+						print("\n")
+					nb_dir += 1
+					print(i, direction, dico_direction[direction])
+					last_direction = direction
 
 	def affichage(self):
 		xmax, ymax, zmax = np.max(self.coordonnees, axis=0)
@@ -100,3 +117,6 @@ if __name__ == "__main__":
 	cube_chaine = [3,1,2,1,1,3,1,2,1,2,1,2,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,2,3,1,1,1,3,1,2,1,1,1,1,1,1,1,1,1,3,1]
 	cube = cube64(cube_chaine)
 	cube.affichage()
+	cube.set_noeuds([3])
+	cube.chemin()
+	cube.get_instruction()
